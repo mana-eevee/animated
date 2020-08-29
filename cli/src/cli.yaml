@@ -9,9 +9,6 @@ args:
         short: v
         long: verbose
         about: Whether or not to log verbose messages.
-    - daemon:
-        long: daemon
-        about: Start the animated daemon locally.
 subcommands:
     - list:
         about: Lists the anime being watched.

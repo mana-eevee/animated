@@ -1,28 +1,20 @@
-mod config;
-mod constants;
-mod daemon;
-mod rocksdb;
-mod structs;
-
 extern crate bincode;
+extern crate common;
 #[macro_use]
 extern crate prettytable;
-#[macro_use]
-extern crate log;
 
 use clap::{load_yaml, App};
 use prettytable::Table;
+use std::{process, str::FromStr};
 
-use std::{
-    process,
-    str::FromStr,
-};
-
-use structs::{Anime};
+use common::config;
+use common::structs::{Anime, Quality};
+use common::rocksdb;
 
 fn main() {
     let yaml = load_yaml!("cli.yaml");
-    let matches = App::from(yaml).get_matches();
+    let app = App::from(yaml);
+    let matches = app.get_matches();
 
     let config_result = config::read();
 
@@ -32,7 +24,7 @@ fn main() {
     }
 
     match config_result {
-        Ok(config) => {
+        Ok(_) => {
             match matches.subcommand() {
                 ("watch", Some(watch_matches)) => {
                     let name = watch_matches
@@ -40,7 +32,7 @@ fn main() {
                         .expect("Expected `--name` to have been specified.");
                     // We can directly unwrap this because clap automatically
                     // performs allowed value validation for us.
-                    let quality = structs::Quality::from_str(
+                    let quality = Quality::from_str(
                         watch_matches
                             .value_of("quality")
                             .expect("Expected `--quality` to have been specified."),
@@ -73,11 +65,9 @@ fn main() {
 
                     table.printstd();
                 }
-                ("", None) => {
-                    if matches.is_present("daemon") {
-                        daemon::run(config);
-                    }
-                }
+                ("", None) => println!(
+                    "Let's get started! Run `animated watch` to start watching for new episodes."
+                ),
                 // If all subcommands are defined above, anything else is unreachabe!
                 _ => unreachable!(),
             }

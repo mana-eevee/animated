@@ -1,8 +1,6 @@
-extern crate stderrlog;
-
-use crate::config;
-use crate::constants::{CONFIG_PATH, DAEMON_LOCK_PATH};
-use crate::structs::Config;
+use common::config;
+use common::constants::{CONFIG_PATH, DAEMON_LOCK_PATH};
+use common::structs::Config;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use std::thread;
 use std::{
@@ -88,7 +86,7 @@ fn watch_config_changes(config_mtx: Arc<Mutex<Config>>) -> Box<thread::JoinHandl
                         let config_result = config::read();
                         let config =
                             config_result.expect("Failed to read recently written config file.");
-                        debug!("Updating config to: {:?}", config);
+                        debug!("Config file was updated. New contents: {:?}", config);
                         let mut current_config = config_mtx.lock().unwrap();
                         *current_config = config;
                     }
@@ -122,15 +120,7 @@ fn watch_anime(_config_mtx: Arc<Mutex<Config>>) -> Box<thread::JoinHandle<()>> {
 }
 
 pub fn run(config: Config) {
-    stderrlog::new()
-        .module(module_path!())
-        .verbosity(4)
-        .color(stderrlog::ColorChoice::Always)
-        .timestamp(stderrlog::Timestamp::Millisecond)
-        .init()
-        .unwrap();
-
-    info!("Starting animate in daemon mode!");
+    info!("Starting animated in daemon mode!");
     debug!("Using current config: {:?}", config);
 
     let _lock = DaemonLock {};

@@ -1,20 +1,5 @@
-[package]
-name = "animated"
-version = "0.1.0"
-authors = ["mana"]
-edition = "2018"
+[workspace]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-clap = { version = "3.0.0-beta.1", features = ["yaml"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-whoami = "0.9.0"
-rocksdb = "0.15.0"
-bincode = "1.3.1"
-prettytable-rs = "^0.8"
-notify = "4.0.12"
-log = "0.4.11"
-stderrlog = "0.4.3"
-simple-signal = "1.1.1"
+members = [
+    "cli", "common", "server"
+]

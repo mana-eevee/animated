@@ -10,20 +10,30 @@ dependencies = [
 ]
 
 [[package]]
-name = "animated"
+name = "animated-cli"
 version = "0.1.0"
 dependencies = [
  "bincode",
  "clap 3.0.0-beta.1",
+ "common",
+ "log",
+ "prettytable-rs",
+]
+
+[[package]]
+name = "animated-server"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "clap 3.0.0-beta.1",
+ "common",
  "log",
  "notify",
- "prettytable-rs",
  "rocksdb",
  "serde",
  "serde_json",
  "simple-signal",
  "stderrlog",
- "whoami",
 ]
 
 [[package]]
@@ -231,6 +241,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "notify",
+ "rocksdb",
+ "serde",
+ "serde_json",
+ "simple-signal",
+ "whoami",
 ]
 
 [[package]]

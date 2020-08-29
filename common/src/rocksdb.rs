@@ -1,4 +1,4 @@
-use crate::{constants::ROCKSDB_PATH, Anime};
+use crate::{constants::ROCKSDB_PATH, structs::Anime};
 use rocksdb::{IteratorMode, DB};
 use std::collections::HashMap;
 
