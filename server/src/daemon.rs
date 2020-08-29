@@ -120,7 +120,7 @@ fn watch_anime(_config_mtx: Arc<Mutex<Config>>) -> Box<thread::JoinHandle<()>> {
 }
 
 pub fn run(config: Config) {
-    info!("Starting animated in daemon mode!");
+    info!("Starting animated daemon.");
     debug!("Using current config: {:?}", config);
 
     let _lock = DaemonLock {};
