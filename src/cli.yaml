@@ -1,0 +1,40 @@
+name: animated
+about: Send notifications and autodownload new episodes of anime.
+args:
+    - edit:
+        short: e
+        long: edit
+        about: Opens the animated config file for editing.
+    - verbose:
+        short: v
+        long: verbose
+        about: Whether or not to log verbose messages.
+subcommands:
+    - list:
+        about: Lists the anime being watched.
+    - watch:
+        about: Watches for new episodes of an anime.
+        args:
+            - name:
+                long: name
+                help: The name of the anime to watch.
+                takes_value: true
+                required: true
+            - quality:
+                long: quality
+                help: The quality for which to watch for.
+                possible_values: [ 360p, 480p, 720p, 1080p, 4k ]
+                takes_value: true
+                required: true
+            - subgroup:
+                long: subgroup
+                help: The subtitle group whose releases should be watched.
+                takes_value: true
+                required: true
+    - unwatch:
+        about: Removes an anime from the watch list.
+        args:
+            - watch_id:
+                long: watch-id
+                help: The ID of the anime to stop watching.
+                index: 1
