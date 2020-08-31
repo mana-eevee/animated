@@ -56,7 +56,7 @@ async fn try_connect(peer: &dyn ConnectablePeer, metainfo: &TorrentMetainfo) {
     match maybe_connection {
         Ok(mut conn) => {
             // Dangerous unwrap should actually handle this...
-            conn.stream.write(&gen_peer_handshake(metainfo)[..]).await.unwrap();
+            conn.write(&gen_peer_handshake(metainfo)[..]).await.unwrap();
             println!("Connected to: {}:{}!", peer.ip(), peer.port());
         }
         Err(e) => eprintln!(
@@ -70,7 +70,7 @@ async fn try_connect(peer: &dyn ConnectablePeer, metainfo: &TorrentMetainfo) {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let file_contents: Vec<u8> = fs::read("/Users/mana/Downloads/sao.torrent")?;
+    let file_contents: Vec<u8> = fs::read("/home/mana/Downloads/sao.torrent")?;
     let info: TorrentMetainfo = serde_bencode::from_bytes(&file_contents)?;
     let client = Client::new();
     let uri = gen_announce_get_uri(&info).parse()?;

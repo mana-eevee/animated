@@ -7,6 +7,7 @@ use std::fmt::Write;
 use std::mem::size_of;
 use std::rc::Rc;
 
+
 fn sha1_bytes_to_hex_string(bytes: &[u8; 20]) -> String {
     let mut s = String::new();
 
@@ -148,6 +149,8 @@ pub struct TrackerGetRequest {
      * The port number this peer is listening on. Common behavior is for a downloader
      * to try to listen on port 6881 and if that port is taken try 6882, then
      * 6883, etc. and give up after 6889.
+     * 
+     * This is in BIG ENDIAN.
      */
     pub port: u16,
     /*
@@ -174,6 +177,9 @@ pub struct TorrentPeer {
      * 32-bit IPv4 address are 4 chunks of 1 byte each.
      */
     pub ip: [u8; 1],
+    /*
+     * This is in BIG ENDIAN.
+     */
     pub port: u16,
 }
 
@@ -183,6 +189,9 @@ pub struct CompactTorrentPeer {
      * 32-bit IPv4 address are 4 chunks of 1 byte each.
      */
     pub ip: [u8; 4],
+    /*
+     * This is in BIG ENDIAN.
+     */
     pub port: u16,
 }
 
@@ -248,11 +257,11 @@ impl TrackerGetResponse {
                 const PEER_BYTE_SIZE: usize = size_of::<CompactTorrentPeer>();
 
                 while start < peer_bytes.len() {
-                    let peer = bincode::deserialize::<CompactTorrentPeer>(
-                        &peer_bytes[start..start + PEER_BYTE_SIZE],
-                    )
-                    .unwrap();
-                    peers.push(peer);
+                    peers.push(CompactTorrentPeer {
+                        ip: [peer_bytes[start], peer_bytes[start + 1], peer_bytes[start + 2], peer_bytes[start + 3]],
+                        // Big endian decoding of the port.
+                        port: ((peer_bytes[start + 4] as u16) << 8) | (peer_bytes[start + 5] as u16)
+                    });
                     start += PEER_BYTE_SIZE;
                 }
 
