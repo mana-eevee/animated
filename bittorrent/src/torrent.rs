@@ -1,3 +1,4 @@
+use crate::p2p::{ConnectablePeer};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
 use sha1::{Digest, Sha1};
@@ -104,6 +105,13 @@ pub struct TorrentMetainfo {
 }
 
 impl TorrentMetainfo {
+    pub fn gen_info_hash_bytes(&self) -> [u8; 20] {
+        let encoded_info = serde_bencode::to_bytes(&self.info).unwrap();
+        let mut hasher = Sha1::new();
+        hasher.update(&encoded_info);
+        return hasher.finalize().to_vec()[..].try_into().unwrap();
+    }
+
     pub fn gen_info_hash(&self) -> String {
         let encoded_info = serde_bencode::to_bytes(&self.info).unwrap();
         let mut hasher = Sha1::new();
@@ -178,8 +186,8 @@ pub struct CompactTorrentPeer {
     pub port: u16,
 }
 
-impl CompactTorrentPeer {
-    pub fn get_ip(&self) -> String {
+impl ConnectablePeer for CompactTorrentPeer {
+    fn ip(&self) -> String {
         let ip = Rc::new(&self.ip);
         let mut parts = vec![];
 
@@ -188,6 +196,10 @@ impl CompactTorrentPeer {
         }
 
         return parts[..].join(".");
+    }
+
+    fn port(&self) -> u16 {
+        return self.port;
     }
 }
 
