@@ -126,14 +126,12 @@ pub fn run(config: Config) {
     let _lock = DaemonLock {};
     _lock.grab();
 
-    simple_signal::set_handler(
-        &[Signal::Int, Signal::Term], move |_| {
-            info!("Daemon received SIGINT/SIGTERM.");
-            _lock.release();
-            info!("Exiting.");
-            process::exit(0);
-        }
-    );
+    simple_signal::set_handler(&[Signal::Int, Signal::Term], move |_| {
+        info!("Daemon received SIGINT/SIGTERM.");
+        _lock.release();
+        info!("Exiting.");
+        process::exit(0);
+    });
 
     let config_mtx = Arc::new(Mutex::new(config));
     let config_watch_handle = *watch_config_changes(Arc::clone(&config_mtx));

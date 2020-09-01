@@ -135,10 +135,12 @@ dependencies = [
  "bytes",
  "futures",
  "hyper",
+ "log",
  "serde",
  "serde_bencode",
  "serde_bytes",
  "sha-1",
+ "stderrlog",
  "tokio",
 ]
 

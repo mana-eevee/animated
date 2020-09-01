@@ -84,10 +84,7 @@ fn open_config_editor() {
             }
         },
         Ok(_) => {
-            println!(
-                "{}",
-                format!("Config was set to: {}", edited_config).trim()
-            );
+            println!("{}", format!("Config was set to: {}", edited_config).trim());
         }
     }
 }

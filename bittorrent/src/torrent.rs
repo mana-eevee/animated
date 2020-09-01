@@ -1,4 +1,4 @@
-use crate::p2p::{ConnectablePeer};
+use crate::client::ConnectablePeer;
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
 use sha1::{Digest, Sha1};
@@ -6,7 +6,6 @@ use std::convert::TryInto;
 use std::fmt::Write;
 use std::mem::size_of;
 use std::rc::Rc;
-
 
 fn sha1_bytes_to_hex_string(bytes: &[u8; 20]) -> String {
     let mut s = String::new();
@@ -114,11 +113,8 @@ impl TorrentMetainfo {
     }
 
     pub fn gen_info_hash(&self) -> String {
-        let encoded_info = serde_bencode::to_bytes(&self.info).unwrap();
-        let mut hasher = Sha1::new();
-        hasher.update(&encoded_info);
-        let result = hasher.finalize();
-        return url_encode_bytes(&result[..]);
+        let info_hash = self.gen_info_hash_bytes();
+        return url_encode_bytes(&info_hash[..]);
     }
 }
 
@@ -149,7 +145,7 @@ pub struct TrackerGetRequest {
      * The port number this peer is listening on. Common behavior is for a downloader
      * to try to listen on port 6881 and if that port is taken try 6882, then
      * 6883, etc. and give up after 6889.
-     * 
+     *
      * This is in BIG ENDIAN.
      */
     pub port: u16,
@@ -176,7 +172,7 @@ pub struct TorrentPeer {
     /*
      * 32-bit IPv4 address are 4 chunks of 1 byte each.
      */
-    pub ip: [u8; 1],
+    pub ip: [u8; 4],
     /*
      * This is in BIG ENDIAN.
      */
@@ -258,9 +254,15 @@ impl TrackerGetResponse {
 
                 while start < peer_bytes.len() {
                     peers.push(CompactTorrentPeer {
-                        ip: [peer_bytes[start], peer_bytes[start + 1], peer_bytes[start + 2], peer_bytes[start + 3]],
+                        ip: [
+                            peer_bytes[start],
+                            peer_bytes[start + 1],
+                            peer_bytes[start + 2],
+                            peer_bytes[start + 3],
+                        ],
                         // Big endian decoding of the port.
-                        port: ((peer_bytes[start + 4] as u16) << 8) | (peer_bytes[start + 5] as u16)
+                        port: ((peer_bytes[start + 4] as u16) << 8)
+                            | (peer_bytes[start + 5] as u16),
                     });
                     start += PEER_BYTE_SIZE;
                 }

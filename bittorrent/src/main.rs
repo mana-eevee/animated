@@ -1,17 +1,20 @@
 extern crate hyper;
+#[macro_use]
+extern crate log;
 extern crate serde;
 extern crate serde_bencode;
+extern crate stderrlog;
 
+mod client;
 mod p2p;
 mod torrent;
 
 use bytes::BufMut;
+use client::try_connect;
 use futures::future;
 use hyper::body::HttpBody;
 use hyper::Client;
-use p2p::{connect_peer, ConnectablePeer};
 use std::fs;
-use tokio::prelude::*;
 use torrent::{TorrentMetainfo, TrackerGetResponse};
 
 fn truncate_or_pad(candidate: &str, width: usize) -> String {
@@ -39,37 +42,16 @@ fn gen_announce_get_uri(metainfo: &TorrentMetainfo) -> String {
     );
 }
 
-fn gen_peer_handshake(metainfo: &TorrentMetainfo) -> Vec<u8> {
-    let mut buffer = vec![];
-    
-    buffer.push(19 as u8);
-    buffer.extend(b"BitTorrent protocol");
-    buffer.extend(&[0, 0, 0, 0, 0, 0, 0, 0]);
-    buffer.extend(&metainfo.gen_info_hash_bytes());
-    buffer.extend(gen_peer_id().as_bytes());
-
-    return buffer;
-}
-
-async fn try_connect(peer: &dyn ConnectablePeer, metainfo: &TorrentMetainfo) {
-    let maybe_connection = connect_peer(peer).await;
-    match maybe_connection {
-        Ok(mut conn) => {
-            // Dangerous unwrap should actually handle this...
-            conn.write(&gen_peer_handshake(metainfo)[..]).await.unwrap();
-            println!("Connected to: {}:{}!", peer.ip(), peer.port());
-        }
-        Err(e) => eprintln!(
-            "Failed connection! To: {}:{} / {:?}",
-            peer.ip(),
-            peer.port(),
-            e
-        ),
-    }
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    stderrlog::new()
+        .module(module_path!())
+        .verbosity(4)
+        .color(stderrlog::ColorChoice::Always)
+        .timestamp(stderrlog::Timestamp::Millisecond)
+        .init()
+        .unwrap();
+
     let file_contents: Vec<u8> = fs::read("/home/mana/Downloads/sao.torrent")?;
     let info: TorrentMetainfo = serde_bencode::from_bytes(&file_contents)?;
     let client = Client::new();
